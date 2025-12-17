@@ -1,0 +1,63 @@
+# Academic Paper Analysis Pipeline Configuration
+
+# Journals to search (easily modify this list)
+journals:
+  - "Neurology"
+  - "JAMA Neurology"
+  - "Annals of Neurology"
+  - "New England Journal of Medicine"
+
+# Search settings
+search:
+  # Keywords to search for (AI-related terms)
+  keywords:
+    - "artificial intelligence"
+    - "machine learning"
+    - "deep learning"
+    - "neural network"
+
+  # Maximum number of papers to retrieve per query
+  max_results: 100
+
+  # Year range (leave end_year null for current year)
+  start_year: 2020
+  end_year: null
+
+  # Minimum citation count (optional filter)
+  min_citations: 0
+
+# PDF settings
+pdf:
+  # Directory to store downloaded PDFs
+  download_dir: "outputs/pdfs"
+
+  # Maximum file size to download (in MB)
+  max_size_mb: 50
+
+  # Timeout for downloads (seconds)
+  timeout: 30
+
+# LLM settings
+llm:
+  # Model to use for analysis
+  model: "claude-sonnet-4-20250514"
+
+  # Maximum tokens for responses
+  max_tokens: 4096
+
+  # Temperature (0 = deterministic, 1 = creative)
+  temperature: 0.3
+
+# Report settings
+reports:
+  # Output directory for reports
+  output_dir: "outputs/reports"
+
+  # Generate individual paper reports
+  individual_reports: true
+
+  # Generate summary report
+  summary_report: true
+
+  # Export raw data as JSON
+  export_json: true

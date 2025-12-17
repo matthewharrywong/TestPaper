@@ -1,0 +1,17 @@
+# HTTP requests
+requests>=2.31.0
+
+# PDF handling
+pdfplumber>=0.10.0
+
+# LLM integration
+anthropic>=0.40.0
+
+# Configuration
+pyyaml>=6.0.1
+
+# Progress display
+tqdm>=4.66.0
+
+# Rate limiting
+ratelimit>=2.2.1
