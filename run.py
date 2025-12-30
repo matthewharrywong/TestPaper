@@ -29,6 +29,9 @@ Examples:
 
   # Add custom keywords
   python run.py --keywords "deep learning" "transformer" "computer vision"
+
+  # Use university library proxy for paywalled papers
+  python run.py --ezproxy "https://ezproxy.library.edu/login?url="
         """,
     )
 
@@ -91,6 +94,12 @@ Examples:
         help="Show what would be done without executing",
     )
 
+    parser.add_argument(
+        "--ezproxy",
+        type=str,
+        help="EZproxy prefix URL for university library access (e.g., 'https://ezproxy.library.edu/login?url=')",
+    )
+
     args = parser.parse_args()
 
     # Load config
@@ -118,6 +127,10 @@ Examples:
     if args.end_year:
         config.end_year = args.end_year
 
+    if args.ezproxy:
+        config.ezproxy_enabled = True
+        config.ezproxy_prefix = args.ezproxy
+
     # Validate config
     if not config.journals:
         print("Error: No journals specified")
@@ -142,6 +155,14 @@ Examples:
         print(f"  Max results: {config.max_results}")
         print(f"  Year range: {config.start_year or 'any'} - {config.end_year or 'present'}")
         print(f"  LLM model: {config.llm_model}")
+        print(f"\nEZproxy:")
+        if config.ezproxy_enabled:
+            print(f"  Enabled: Yes")
+            print(f"  Prefix: {config.ezproxy_prefix}")
+            print(f"  Try direct first: {config.ezproxy_try_direct_first}")
+            print(f"  Use DOI URLs: {config.ezproxy_use_doi_urls}")
+        else:
+            print(f"  Enabled: No (only open access PDFs will be downloaded)")
         print(f"\nOutput:")
         print(f"  Reports: {config.reports_output_dir}")
         print(f"  PDFs: {config.pdf_download_dir}")

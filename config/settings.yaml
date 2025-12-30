@@ -37,6 +37,25 @@ pdf:
   # Timeout for downloads (seconds)
   timeout: 30
 
+  # EZproxy settings for university library access
+  ezproxy:
+    # Enable EZproxy for accessing paywalled PDFs
+    enabled: false
+
+    # Your university's EZproxy prefix URL
+    # Example formats:
+    #   - "https://ezproxy.library.edu/login?url="  (prefix style)
+    #   - "https://proxy.library.edu/login?url="
+    prefix: ""
+
+    # Try direct URL first before using proxy (recommended)
+    # If false, always use proxy for all requests
+    try_direct_first: true
+
+    # Construct DOI URLs for papers without direct PDF links
+    # This allows accessing paywalled papers via DOI resolver + proxy
+    use_doi_urls: true
+
 # LLM settings
 llm:
   # Model to use for analysis

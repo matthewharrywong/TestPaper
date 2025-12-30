@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 from .search import SemanticScholarSearch
 from .search.semantic_scholar import Paper
-from .pdf import PDFChecker, PDFExtractor
+from .pdf import PDFChecker, PDFExtractor, EZProxyConfig
 from .analysis import PaperAnalyzer
 from .analysis.analyzer import PaperAnalysis
 from .reports import ReportGenerator
@@ -33,6 +33,12 @@ class PipelineConfig:
     pdf_download_dir: str = "outputs/pdfs"
     pdf_max_size_mb: int = 50
     pdf_timeout: int = 30
+
+    # EZproxy settings
+    ezproxy_enabled: bool = False
+    ezproxy_prefix: str = ""
+    ezproxy_try_direct_first: bool = True
+    ezproxy_use_doi_urls: bool = True
 
     # LLM settings
     llm_model: str = "claude-sonnet-4-20250514"
@@ -61,6 +67,10 @@ class PipelineConfig:
             pdf_download_dir=data.get("pdf", {}).get("download_dir", "outputs/pdfs"),
             pdf_max_size_mb=data.get("pdf", {}).get("max_size_mb", 50),
             pdf_timeout=data.get("pdf", {}).get("timeout", 30),
+            ezproxy_enabled=data.get("pdf", {}).get("ezproxy", {}).get("enabled", False),
+            ezproxy_prefix=data.get("pdf", {}).get("ezproxy", {}).get("prefix", ""),
+            ezproxy_try_direct_first=data.get("pdf", {}).get("ezproxy", {}).get("try_direct_first", True),
+            ezproxy_use_doi_urls=data.get("pdf", {}).get("ezproxy", {}).get("use_doi_urls", True),
             llm_model=data.get("llm", {}).get("model", "claude-sonnet-4-20250514"),
             llm_max_tokens=data.get("llm", {}).get("max_tokens", 4096),
             llm_temperature=data.get("llm", {}).get("temperature", 0.3),
@@ -84,10 +94,20 @@ class AcademicPaperPipeline:
 
         # Initialize components
         self.searcher = SemanticScholarSearch()
+
+        # Configure EZproxy if enabled
+        ezproxy_config = EZProxyConfig(
+            enabled=config.ezproxy_enabled,
+            prefix=config.ezproxy_prefix,
+            try_direct_first=config.ezproxy_try_direct_first,
+            use_doi_urls=config.ezproxy_use_doi_urls,
+        )
+
         self.pdf_checker = PDFChecker(
             download_dir=config.pdf_download_dir,
             max_size_mb=config.pdf_max_size_mb,
             timeout=config.pdf_timeout,
+            ezproxy_config=ezproxy_config,
         )
         self.pdf_extractor = PDFExtractor()
         self.analyzer = PaperAnalyzer(
@@ -130,11 +150,14 @@ class AcademicPaperPipeline:
             Dictionary of paper_id to availability status.
         """
         print(f"\n📄 Checking PDF availability for {len(self.papers)} papers...")
+        if self.config.ezproxy_enabled:
+            print(f"   Using EZproxy: {self.config.ezproxy_prefix[:50]}...")
 
         for paper in tqdm(self.papers, desc="Checking PDFs"):
             status = self.pdf_checker.check_and_download(
                 paper_id=paper.paper_id,
                 pdf_url=paper.pdf_url,
+                doi=paper.doi,  # Pass DOI for proxy-based access
             )
             self.pdf_statuses[paper.paper_id] = status.available
 
